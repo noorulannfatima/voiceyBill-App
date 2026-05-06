@@ -13,12 +13,12 @@ export default function TransactionsScreen({ navigation }: any) {
   const [page, setPage] = useState(1);
   
   const { data, isLoading, isFetching, refetch } = useGetAllTransactionsQuery({ 
-    page, 
-    limit: 20 
+    pageNumber: page, 
+    pageSize: 20 
   });
 
-  const transactions = data?.data?.transactions || [];
-  const hasMore = data?.data?.hasNextPage || false;
+  const transactions = data?.transations || [];
+  const hasMore = (data?.pagination?.pageNumber || 1) < (data?.pagination?.totalPages || 1);
 
   const onRefresh = () => {
     setPage(1);

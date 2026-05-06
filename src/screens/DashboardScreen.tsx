@@ -20,12 +20,12 @@ export default function DashboardScreen({ navigation }: any) {
   // Fetch dashboard data
   const { data: summaryData, isLoading, refetch } = useGetSummaryAnalyticsQuery({});
   const { data: transactionsData, refetch: refetchTransactions } = useGetAllTransactionsQuery({ 
-    page: 1, 
-    limit: 5 
+    pageNumber: 1, 
+    pageSize: 5 
   });
 
   const summary = summaryData?.data;
-  const recentTransactions = transactionsData?.data?.transactions || [];
+  const recentTransactions = transactionsData?.transations || [];
 
   const onRefresh = async () => {
     setRefreshing(true);
