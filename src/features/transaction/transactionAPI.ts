@@ -50,9 +50,13 @@ export const transactionApi = apiClient.injectEndpoints({
           keyword = undefined,
           type = undefined,
           recurringStatus = undefined,
-          pageNumber = 1,
+          pageNumber: pageNumberParam,
+          page: pageAlias,
           pageSize = 10,
-        } = params;
+        } = params || {};
+
+        // Accept either `pageNumber` or `page` from callers; default to 1
+        const pageNumber = pageNumberParam ?? pageAlias ?? 1;
 
         return {
           url: '/transaction/all',

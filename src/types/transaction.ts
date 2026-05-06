@@ -35,16 +35,25 @@ export interface GetAllTransactionParams {
   keyword?: string;
   type?: _TransactionType;
   recurringStatus?: 'RECURRING' | 'NON_RECURRING';
+  /** `pageNumber` is canonical; `page` is accepted as an alias from some callers */
   pageNumber?: number;
+  page?: number;
   pageSize?: number;
 }
 
 export interface GetAllTransactionResponse {
-  transations: Transaction[];
+  /** Server historically returns `transations` (typo). Accept both shapes here. */
+  transations?: Transaction[];
+  transactions?: Transaction[];
+  data?: {
+    transations?: Transaction[];
+    transactions?: Transaction[];
+  } | null;
   pagination: {
     totalCount: number;
     totalPages: number;
-    currentPage: number;
+    pageNumber: number;
     pageSize: number;
+    skip: number;
   };
 }
