@@ -14,7 +14,7 @@ export async function tryTranscodeM4AToWav(inputUri: string): Promise<Transcoded
     // Ensure output dir exists
   const baseDir = (FileSystem as any).documentDirectory || (FileSystem as any).cacheDirectory || 'file:///';
     const outDir = baseDir + 'transcoded/';
-    try { await FileSystem.makeDirectoryAsync(outDir, { intermediates: true }); } catch {}
+    try { await (FileSystem as any).makeDirectoryAsync(outDir, { intermediates: true }); } catch {}
     const outUri = `${outDir}voice-${Date.now()}.wav`;
 
     const inPath = inputUri.replace('file://', '');
