@@ -46,8 +46,7 @@ export default function SignUpScreen() {
     if (!validate()) return;
     try {
       await register({ name, email, password }).unwrap();
-      Alert.alert('Account created', 'Please sign in to continue.');
-      (navigation as any).navigate('SignIn');
+      (navigation as any).navigate('VerifyOtp', { email });
     } catch (error: any) {
       setErrors({ email: error?.data?.message || 'Registration failed. Please try again.' });
     }

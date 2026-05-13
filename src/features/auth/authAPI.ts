@@ -11,20 +11,48 @@ interface RegisterCredentials {
   password: string;
 }
 
+interface AuthUser {
+  _id: string;
+  name: string;
+  email: string;
+  profilePicture?: string;
+  createdAt: string;
+}
+
+interface ReportSetting {
+  isEnabled: boolean;
+  frequency?: string;
+}
+
 interface AuthResponse {
-  user: {
-    _id: string;
-    name: string;
-    email: string;
-    profilePicture?: string;
-    createdAt: string;
-  };
+  user: AuthUser;
   accessToken: string;
+  expiresAt?: string;
+  reportSetting?: ReportSetting | null;
+}
+
+interface RegisterResponse {
+  message: string;
+  data: {
+    user: AuthUser;
+    verificationRequired: boolean;
+  };
+}
+
+interface VerifyOtpResponse {
+  message: string;
+  data: {
+    user: AuthUser;
+    accessToken: string;
+    expiresAt: string;
+    reportSetting: ReportSetting | null;
+    verified: boolean;
+  };
 }
 
 export const authApi = apiClient.injectEndpoints({
   endpoints: (builder) => ({
-    register: builder.mutation<AuthResponse, RegisterCredentials>({
+    register: builder.mutation<RegisterResponse, RegisterCredentials>({
       query: (credentials) => ({
         url: '/auth/register',
         method: 'POST',
@@ -36,6 +64,34 @@ export const authApi = apiClient.injectEndpoints({
         url: '/auth/login',
         method: 'POST',
         body: credentials,
+      }),
+    }),
+    verifyOtp: builder.mutation<VerifyOtpResponse, { email: string; otp: string }>({
+      query: (body) => ({
+        url: '/auth/verify-otp',
+        method: 'POST',
+        body,
+      }),
+    }),
+    resendOtp: builder.mutation<{ message: string }, { email: string }>({
+      query: (body) => ({
+        url: '/auth/resend-otp',
+        method: 'POST',
+        body,
+      }),
+    }),
+    forgotPassword: builder.mutation<{ message: string }, { email: string }>({
+      query: (body) => ({
+        url: '/auth/forgot-password',
+        method: 'POST',
+        body,
+      }),
+    }),
+    resetPassword: builder.mutation<{ message: string }, { email: string; otp: string; password: string }>({
+      query: (body) => ({
+        url: '/auth/reset-password',
+        method: 'POST',
+        body,
       }),
     }),
     logout: builder.mutation<void, void>({
@@ -56,6 +112,10 @@ export const authApi = apiClient.injectEndpoints({
 export const {
   useLoginMutation,
   useRegisterMutation,
+  useVerifyOtpMutation,
+  useResendOtpMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
   useRefreshMutation,
   useLogoutMutation,
 } = authApi;
