@@ -48,6 +48,10 @@ export default function SignInScreen() {
       const result = await login({ email, password }).unwrap();
       dispatch(setCredentials(result));
     } catch (error: any) {
+      if (error?.data?.errorCode === 'AUTH_EMAIL_NOT_VERIFIED') {
+        (navigation as any).navigate('VerifyOtp', { email });
+        return;
+      }
       setErrors({ email: error?.data?.message || 'Login failed. Please try again.' });
     }
   };
@@ -121,6 +125,13 @@ export default function SignInScreen() {
                   ? <ActivityIndicator color={themeColors.primaryForeground} />
                   : <Text style={[styles.buttonText, { color: themeColors.primaryForeground }]}>Sign in</Text>
                 }
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.forgotRow}
+                onPress={() => (navigation as any).navigate('ForgotPassword')}
+              >
+                <Text style={styles.link}>Forgot password?</Text>
               </TouchableOpacity>
 
               <View style={styles.footer}>
@@ -205,6 +216,7 @@ const createStyles = (theme: typeof colors.light) =>
     },
     buttonDisabled: { opacity: 0.6 },
     buttonText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    forgotRow: { alignItems: 'flex-end' },
     footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.sm },
     footerText: { fontSize: fontSize.sm, color: theme.mutedForeground },
     link: { fontSize: fontSize.sm, color: theme.foreground, fontWeight: fontWeight.semibold, textDecorationLine: 'underline' },
