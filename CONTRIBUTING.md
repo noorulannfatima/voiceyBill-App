@@ -47,6 +47,7 @@ npm run ios
 - Keep PRs small and easy to review.
 - Link related issues, for example `Closes #123`.
 - Include screenshots or recordings for UI changes.
+- Use the PR template at [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md). It loads automatically when you open a PR. Fill in every section before requesting review.
 
 ## Quality checks
 
@@ -63,11 +64,19 @@ If lint scripts are available in future:
 npm run lint --if-present
 ```
 
-## Issue reporting
+## Issues and templates
 
-- Use the bug template for defects.
-- Use the feature template for enhancements.
-- Use the question template for usage help.
+Issues of all kinds are welcome. You do not need permission to open one. Bug reports, feature ideas, questions, suggestions, discussions, and anything else you want to raise are all fair game.
+
+When your issue matches one of the templates below, use it. GitHub shows the template picker automatically when you click New Issue:
+
+- **Bug report** - a reproducible defect with steps, expected result, and actual result
+- **Feature request** - a new feature or improvement with a clear problem statement
+- **Question** - usage, setup, or clarification help
+
+Templates are at [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/). If your issue does not fit any template, open a blank issue and describe it clearly. Do not leave required template fields empty.
+
+Keep one issue focused on one topic so it can be triaged quickly. Include a screenshot or recording for anything visual or hard to explain in text.
 
 ## Security policy
 
