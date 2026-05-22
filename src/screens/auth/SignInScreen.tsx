@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -29,6 +29,7 @@ export default function SignInScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const passwordRef = useRef<TextInput>(null);
 
   const [login, { isLoading }] = useLoginMutation();
 
@@ -87,6 +88,9 @@ export default function SignInScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   editable={!isLoading}
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
                 />
                 {errors.email && <Text style={styles.error}>{errors.email}</Text>}
               </View>
@@ -95,6 +99,7 @@ export default function SignInScreen() {
                 <Text style={styles.label}>Password</Text>
                 <View style={[styles.passwordWrap, errors.password && styles.inputError]}>
                   <TextInput
+                    ref={passwordRef}
                     style={styles.passwordInput}
                     placeholder="Enter your password"
                     placeholderTextColor={themeColors.mutedForeground}
@@ -102,6 +107,8 @@ export default function SignInScreen() {
                     onChangeText={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: undefined })); }}
                     secureTextEntry={!showPassword}
                     editable={!isLoading}
+                    returnKeyType="done"
+                    onSubmitEditing={handleLogin}
                   />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}

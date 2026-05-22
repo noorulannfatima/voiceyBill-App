@@ -79,6 +79,8 @@ export default function ForgotPasswordScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   editable={!isLoading}
+                  returnKeyType="done"
+                  onSubmitEditing={handleSubmit}
                 />
                 {!!emailError && <Text style={styles.error}>{emailError}</Text>}
               </View>

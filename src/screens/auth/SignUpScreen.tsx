@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -30,6 +30,8 @@ export default function SignUpScreen() {
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
 
   const [register, { isLoading }] = useRegisterMutation();
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
 
   const validate = () => {
     const newErrors: { name?: string; email?: string; password?: string } = {};
@@ -82,6 +84,9 @@ export default function SignUpScreen() {
                   onChangeText={(v) => { setName(v); setErrors((e) => ({ ...e, name: undefined })); }}
                   autoCapitalize="words"
                   editable={!isLoading}
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                  onSubmitEditing={() => emailRef.current?.focus()}
                 />
                 {errors.name && <Text style={styles.error}>{errors.name}</Text>}
               </View>
@@ -89,6 +94,7 @@ export default function SignUpScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Email</Text>
                 <TextInput
+                  ref={emailRef}
                   style={[styles.input, errors.email && styles.inputError]}
                   placeholder="you@example.com"
                   placeholderTextColor={themeColors.mutedForeground}
@@ -97,6 +103,9 @@ export default function SignUpScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   editable={!isLoading}
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
                 />
                 {errors.email && <Text style={styles.error}>{errors.email}</Text>}
               </View>
@@ -105,6 +114,7 @@ export default function SignUpScreen() {
                 <Text style={styles.label}>Password</Text>
                 <View style={[styles.passwordWrap, errors.password && styles.inputError]}>
                   <TextInput
+                    ref={passwordRef}
                     style={styles.passwordInput}
                     placeholder="At least 6 characters"
                     placeholderTextColor={themeColors.mutedForeground}
@@ -112,6 +122,8 @@ export default function SignUpScreen() {
                     onChangeText={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: undefined })); }}
                     secureTextEntry={!showPassword}
                     editable={!isLoading}
+                    returnKeyType="done"
+                    onSubmitEditing={handleRegister}
                   />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}

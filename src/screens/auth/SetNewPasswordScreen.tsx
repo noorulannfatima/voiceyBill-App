@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -34,6 +34,7 @@ export default function SetNewPasswordScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string }>({});
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const confirmPasswordRef = useRef<TextInput>(null);
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -91,6 +92,9 @@ export default function SetNewPasswordScreen() {
                     onChangeText={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: undefined })); }}
                     secureTextEntry={!showPassword}
                     editable={!isLoading}
+                    returnKeyType="next"
+                    submitBehavior="submit"
+                    onSubmitEditing={() => confirmPasswordRef.current?.focus()}
                   />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}
@@ -110,6 +114,7 @@ export default function SetNewPasswordScreen() {
                 <Text style={styles.label}>Confirm password</Text>
                 <View style={[styles.passwordWrap, errors.confirmPassword ? styles.inputError : null]}>
                   <TextInput
+                    ref={confirmPasswordRef}
                     style={[styles.passwordInput, { color: themeColors.foreground }]}
                     placeholder="Re-enter your password"
                     placeholderTextColor={themeColors.mutedForeground}
@@ -117,6 +122,8 @@ export default function SetNewPasswordScreen() {
                     onChangeText={(v) => { setConfirmPassword(v); setErrors((e) => ({ ...e, confirmPassword: undefined })); }}
                     secureTextEntry={!showConfirm}
                     editable={!isLoading}
+                    returnKeyType="done"
+                    onSubmitEditing={handleReset}
                   />
                   <TouchableOpacity
                     onPress={() => setShowConfirm(!showConfirm)}
