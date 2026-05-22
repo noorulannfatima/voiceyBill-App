@@ -104,7 +104,7 @@ export default function TransactionsScreen({ route }: TransactionsScreenProps) {
   useEffect(() => {
     // clear selections when page or page size changes
     setSelectedIds(new Set());
-  }, [page, pageSize, data?.transations?.length]);
+  }, [page, pageSize, data?.transactions?.length]);
 
   const handleDelete = async (id: string) => {
     Alert.alert(
@@ -237,7 +237,7 @@ export default function TransactionsScreen({ route }: TransactionsScreenProps) {
 
   const totalPages = data?.pagination?.totalPages || 0;
   const totalCount = data?.pagination?.totalCount || 0;
-  const items = data?.transations || [];
+  const items = data?.transactions || [];
   const showingFrom = items.length ? (page - 1) * pageSize + 1 : 0;
   const showingTo = items.length ? Math.min(page * pageSize, totalCount) : 0;
 

@@ -43,7 +43,7 @@ export interface GetAllTransactionParams {
 
 export interface GetAllTransactionResponse {
   /** Server historically returns `transations` (typo). Accept both shapes here. */
-  transations?: Transaction[];
+  transcations?: Transaction[];
   transactions?: Transaction[];
   data?: {
     transations?: Transaction[];

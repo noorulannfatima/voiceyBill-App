@@ -17,7 +17,7 @@ export default function RecentTransactions() {
     pageNumber: 1,
     pageSize: 10,
   });
-  const transactions = data?.transations || [];
+  const transactions = data?.transactions || [];
 
   const formatPaymentMethod = (method: string) =>
     method.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
