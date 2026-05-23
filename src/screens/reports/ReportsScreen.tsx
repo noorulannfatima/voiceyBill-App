@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Calendar, FileText, Mail, X, CheckCircle, Clock, AlertCircle, MinusCircle } from 'lucide-react-native';
+import { Calendar, FileText, Mail, Send, X, CheckCircle, Clock, AlertCircle, MinusCircle } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../theme/colors';
 import {
@@ -20,18 +20,21 @@ import {
   useUpdateReportSettingMutation,
   ReportStatus,
 } from '../../features/report/reportAPI';
-import { useTypedSelector } from '../../store/hooks';
+import { useAppDispatch, useTypedSelector } from '../../store/hooks';
+import { updateCredentials } from '../../features/auth/authSlice';
 import { format } from 'date-fns';
 
 export default function ReportsScreen() {
   const { activeTheme } = useTheme();
   const themeColors = colors[activeTheme];
+  const dispatch = useAppDispatch();
   const user = useTypedSelector((s) => s.auth.user);
+  const reportSetting = useTypedSelector((s) => s.auth.reportSetting);
 
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const [scheduleEnabled, setScheduleEnabled] = useState(reportSetting?.isEnabled ?? false);
   const [isSavingSchedule, setIsSavingSchedule] = useState(false);
 
   const { data, isLoading, isFetching, refetch } = useGetAllReportsQuery({ pageNumber: page, pageSize });
@@ -40,10 +43,17 @@ export default function ReportsScreen() {
   const reports = data?.reports || [];
   const pagination = data?.pagination;
 
+  useEffect(() => {
+    if (showScheduleModal) {
+      setScheduleEnabled(reportSetting?.isEnabled ?? false);
+    }
+  }, [showScheduleModal, reportSetting?.isEnabled]);
+
   const handleSaveSchedule = async () => {
     setIsSavingSchedule(true);
     try {
       await updateReportSetting({ isEnabled: scheduleEnabled }).unwrap();
+      dispatch(updateCredentials({ reportSetting: { isEnabled: scheduleEnabled } }));
       setShowScheduleModal(false);
       Alert.alert('Saved', 'Report schedule updated successfully');
     } catch {
@@ -51,6 +61,10 @@ export default function ReportsScreen() {
     } finally {
       setIsSavingSchedule(false);
     }
+  };
+
+  const handleResend = (_reportId: string) => {
+    Alert.alert('Coming soon', 'Resend will be available once the backend endpoint lands.');
   };
 
   const formatDate = (dateString: string) => {
@@ -138,6 +152,7 @@ export default function ReportsScreen() {
               {reports.map((report) => {
                 const status = getStatusConfig(report.status);
                 const StatusIcon = status.icon;
+                const isResendDisabled = report.status === 'NO_ACTIVITY';
                 return (
                   <View
                     key={report._id}
@@ -162,6 +177,30 @@ export default function ReportsScreen() {
                         <StatusIcon size={12} color={status.color} strokeWidth={2} />
                         <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
                       </View>
+                    </View>
+                    <View style={[styles.reportFooter, { borderTopColor: themeColors.border }]}>
+                      <TouchableOpacity
+                        style={[
+                          styles.resendBtn,
+                          { borderColor: themeColors.border, backgroundColor: themeColors.muted },
+                          isResendDisabled && styles.resendBtnDisabled,
+                        ]}
+                        onPress={() => handleResend(report._id)}
+                        disabled={isResendDisabled}
+                      >
+                        <Send
+                          size={14}
+                          color={isResendDisabled ? themeColors.mutedForeground : themeColors.foreground}
+                        />
+                        <Text
+                          style={[
+                            styles.resendBtnText,
+                            { color: isResendDisabled ? themeColors.mutedForeground : themeColors.foreground },
+                          ]}
+                        >
+                          Resend
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 );
@@ -380,6 +419,26 @@ const createStyles = (theme: typeof colors.light) =>
       flexShrink: 0,
     },
     statusText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    reportFooter: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderTopWidth: 1,
+    },
+    resendBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+    },
+    resendBtnDisabled: {
+      opacity: 0.5,
+    },
+    resendBtnText: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     pagination: {
       flexDirection: 'row',
       justifyContent: 'space-between',
