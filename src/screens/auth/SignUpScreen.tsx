@@ -133,7 +133,7 @@ export default function SignUpScreen() {
                   <TextInput
                     ref={passwordRef}
                     style={styles.passwordInput}
-                    placeholder="At least 6 characters"
+                    placeholder="At least 8 characters"
                     placeholderTextColor={themeColors.mutedForeground}
                     value={password}
                     onChangeText={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: undefined })); }}
