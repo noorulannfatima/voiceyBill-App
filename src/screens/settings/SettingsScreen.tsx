@@ -7,6 +7,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useTypedSelector, useAppDispatch } from '../../store/hooks';
 import { logout } from '../../features/auth/authSlice';
 import { apiClient } from '../../store/api-client';
+import { deleteRefreshToken } from '../../lib/tokenStorage';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../theme/colors';
 import { Alert } from 'react-native';
 
@@ -56,7 +57,8 @@ export default function SettingsScreen() {
       {
         text: 'Log out',
         style: 'destructive',
-        onPress: () => {
+        onPress: async () => {
+          await deleteRefreshToken();
           dispatch(logout());
           dispatch(apiClient.util.resetApiState());
         },

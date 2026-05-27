@@ -15,6 +15,7 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import { useLoginMutation } from '../../features/auth/authAPI';
 import { useAppDispatch } from '../../store/hooks';
 import { setCredentials } from '../../features/auth/authSlice';
+import { setRefreshToken } from '../../lib/tokenStorage';
 import { useTheme } from '../../context/ThemeContext';
 import { colors, spacing, borderRadius, fontSize, fontWeight } from '../../theme/colors';
 import Logo from '../../components/common/Logo';
@@ -47,6 +48,7 @@ export default function SignInScreen() {
     if (!validate()) return;
     try {
       const result = await login({ email, password }).unwrap();
+      await setRefreshToken(result.refreshToken);
       dispatch(setCredentials(result));
     } catch (error: any) {
       if (error?.data?.errorCode === 'AUTH_EMAIL_NOT_VERIFIED') {
