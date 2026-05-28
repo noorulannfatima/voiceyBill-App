@@ -27,6 +27,7 @@ interface ReportSetting {
 interface AuthResponse {
   user: AuthUser;
   accessToken: string;
+  refreshToken: string;
   expiresAt?: string;
   reportSetting?: ReportSetting | null;
 }
@@ -44,6 +45,7 @@ interface VerifyOtpResponse {
   data: {
     user: AuthUser;
     accessToken: string;
+    refreshToken: string;
     expiresAt: string;
     reportSetting: ReportSetting | null;
     verified: boolean;

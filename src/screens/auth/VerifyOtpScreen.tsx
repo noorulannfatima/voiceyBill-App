@@ -15,6 +15,7 @@ import { RefreshCw, Mail } from 'lucide-react-native';
 import { useVerifyOtpMutation, useResendOtpMutation } from '../../features/auth/authAPI';
 import { useAppDispatch } from '../../store/hooks';
 import { setCredentials } from '../../features/auth/authSlice';
+import { setRefreshToken } from '../../lib/tokenStorage';
 import { useTheme } from '../../context/ThemeContext';
 import { colors, spacing, borderRadius, fontSize, fontWeight } from '../../theme/colors';
 import OtpInput from '../../components/common/OtpInput';
@@ -42,6 +43,7 @@ export default function VerifyOtpScreen() {
     }
     try {
       const result = await verifyOtp({ email, otp }).unwrap();
+      await setRefreshToken(result.data.refreshToken);
       dispatch(setCredentials({
         user: result.data.user,
         accessToken: result.data.accessToken,
