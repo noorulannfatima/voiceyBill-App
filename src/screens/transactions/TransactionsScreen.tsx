@@ -78,9 +78,18 @@ export default function TransactionsScreen({ route }: TransactionsScreenProps) {
   >();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showRowsModal, setShowRowsModal] = useState(false);
-  const [showTypeModal, setShowTypeModal] = useState(false);
-  const [showFreqModal, setShowFreqModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  const typeOptions: { value: FilterType; label: string }[] = [
+    { value: "ALL", label: "All" },
+    { value: "INCOME", label: "Income" },
+    { value: "EXPENSE", label: "Expense" },
+  ];
+  const frequencyOptions: { value: RecurringFilter; label: string }[] = [
+    { value: "ALL", label: "All" },
+    { value: "RECURRING", label: "Recurring" },
+    { value: "NON_RECURRING", label: "Non-recurring" },
+  ];
 
   const lastVoiceModeTs = React.useRef(0);
 
@@ -517,47 +526,99 @@ export default function TransactionsScreen({ route }: TransactionsScreenProps) {
             },
           ]}
         >
-          <TouchableOpacity
-            onPress={() => setShowTypeModal(true)}
-            style={[
-              styles.filterOption,
-              { borderBottomColor: themeColors.border },
-            ]}
-          >
+          <View style={styles.filterGroup}>
             <Text
               style={[
-                styles.filterLabel,
+                styles.filterGroupLabel,
                 { color: themeColors.mutedForeground },
               ]}
             >
               Type
             </Text>
-            <Text
-              style={[styles.filterValue, { color: themeColors.foreground }]}
-            >
-              {typeFilter === "ALL" ? "All Types" : typeFilter}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setShowFreqModal(true)}
-            style={styles.filterOption}
-          >
+            <View style={styles.pillRow}>
+              {typeOptions.map(({ value, label }) => {
+                const active = typeFilter === value;
+                return (
+                  <TouchableOpacity
+                    key={value}
+                    onPress={() => {
+                      setTypeFilter(value);
+                      setPage(1);
+                    }}
+                    activeOpacity={0.7}
+                    style={[
+                      styles.pill,
+                      {
+                        backgroundColor: active
+                          ? themeColors.primary
+                          : themeColors.muted,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.pillText,
+                        {
+                          color: active
+                            ? themeColors.primaryForeground
+                            : themeColors.foreground,
+                        },
+                      ]}
+                    >
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.filterGroup}>
             <Text
               style={[
-                styles.filterLabel,
+                styles.filterGroupLabel,
                 { color: themeColors.mutedForeground },
               ]}
             >
               Frequency
             </Text>
-            <Text
-              style={[styles.filterValue, { color: themeColors.foreground }]}
-            >
-              {recurringFilter === "ALL"
-                ? "All"
-                : recurringFilter.replace("_", " ")}
-            </Text>
-          </TouchableOpacity>
+            <View style={styles.pillRow}>
+              {frequencyOptions.map(({ value, label }) => {
+                const active = recurringFilter === value;
+                return (
+                  <TouchableOpacity
+                    key={value}
+                    onPress={() => {
+                      setRecurringFilter(value);
+                      setPage(1);
+                    }}
+                    activeOpacity={0.7}
+                    style={[
+                      styles.pill,
+                      {
+                        backgroundColor: active
+                          ? themeColors.primary
+                          : themeColors.muted,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.pillText,
+                        {
+                          color: active
+                            ? themeColors.primaryForeground
+                            : themeColors.foreground,
+                        },
+                      ]}
+                    >
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
         </View>
       )}
 
@@ -734,76 +795,6 @@ export default function TransactionsScreen({ route }: TransactionsScreenProps) {
         </View>
       </Modal>
 
-      {/* Type Filter Modal */}
-      <Modal
-        transparent
-        visible={showTypeModal}
-        animationType="fade"
-        onRequestClose={() => setShowTypeModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalCard,
-              {
-                backgroundColor: themeColors.card,
-                borderColor: themeColors.border,
-              },
-            ]}
-          >
-            {(["ALL", "INCOME", "EXPENSE"] as FilterType[]).map((value) => (
-              <TouchableOpacity
-                key={value}
-                style={styles.modalOption}
-                onPress={() => {
-                  setTypeFilter(value);
-                  setShowTypeModal(false);
-                }}
-              >
-                <Text style={{ color: themeColors.foreground }}>{value}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </Modal>
-
-      {/* Frequency Filter Modal */}
-      <Modal
-        transparent
-        visible={showFreqModal}
-        animationType="fade"
-        onRequestClose={() => setShowFreqModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalCard,
-              {
-                backgroundColor: themeColors.card,
-                borderColor: themeColors.border,
-              },
-            ]}
-          >
-            {(["ALL", "RECURRING", "NON_RECURRING"] as RecurringFilter[]).map(
-              (value) => (
-                <TouchableOpacity
-                  key={value}
-                  style={styles.modalOption}
-                  onPress={() => {
-                    setRecurringFilter(value);
-                    setShowFreqModal(false);
-                  }}
-                >
-                  <Text style={{ color: themeColors.foreground }}>
-                    {value.replace("_", " ")}
-                  </Text>
-                </TouchableOpacity>
-              ),
-            )}
-          </View>
-        </View>
-      </Modal>
-
       {/* Transaction Form Bottom Sheet */}
       <TransactionFormSheet
         isVisible={showFormSheet}
@@ -930,20 +921,33 @@ const createStyles = (theme: typeof colors.light) =>
       marginBottom: spacing.sm,
       borderRadius: borderRadius.md,
       borderWidth: 1,
-      overflow: "hidden",
-    },
-    filterOption: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.md,
-      borderBottomWidth: StyleSheet.hairlineWidth,
+      gap: spacing.md,
     },
-    filterLabel: {
-      fontSize: fontSize.sm,
+    filterGroup: {
+      gap: spacing.sm,
     },
-    filterValue: {
+    filterGroupLabel: {
+      fontSize: fontSize.xs,
+      fontWeight: fontWeight.medium,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+    },
+    pillRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: spacing.sm,
+    },
+    pill: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs + 2,
+      borderRadius: borderRadius.full,
+      minHeight: 32,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    pillText: {
       fontSize: fontSize.sm,
       fontWeight: fontWeight.medium,
     },
