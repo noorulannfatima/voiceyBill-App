@@ -1,15 +1,18 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Modal, Alert, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { User, Palette, CreditCard, ChevronRight, LogOut } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useTypedSelector, useAppDispatch } from '../../store/hooks';
 import { logout } from '../../features/auth/authSlice';
+import {
+  useDeleteUserMutation,
+  useSendDeleteAccountOtpMutation,
+} from '../../features/user/userAPI';
 import { apiClient } from '../../store/api-client';
 import { deleteRefreshToken } from '../../lib/tokenStorage';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../theme/colors';
-import { Alert } from 'react-native';
 
 type Section = {
   title: string;
@@ -64,6 +67,54 @@ export default function SettingsScreen() {
         },
       },
     ]);
+  };
+
+  const [sendDeleteAccountOtp] = useSendDeleteAccountOtpMutation();
+  const [deleteUser] = useDeleteUserMutation();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
+  const [deleteOtp, setDeleteOtp] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleSendOtp = async () => {
+    try {
+      setIsSendingOtp(true);
+      await sendDeleteAccountOtp().unwrap();
+      Alert.alert('OTP sent', 'A verification code has been sent to your email.');
+    } catch (err: any) {
+      Alert.alert('Failed to send OTP', err?.data?.message || 'Unable to send verification code');
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (confirmText.trim() !== 'DELETE') {
+      Alert.alert('Confirmation required', 'Type DELETE to confirm account deletion');
+      return;
+    }
+
+    if (!deleteOtp.trim()) {
+      Alert.alert('OTP required', 'Enter the 6-digit OTP sent to your email');
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      await deleteUser({ otp: deleteOtp.trim() }).unwrap();
+      await deleteRefreshToken();
+      dispatch(logout());
+      dispatch(apiClient.util.resetApiState());
+      Alert.alert('Deleted', 'Your account has been deleted');
+    } catch (err: any) {
+      Alert.alert('Deletion failed', err?.data?.message || 'Could not delete account');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setConfirmText('');
+      setDeleteOtp('');
+    }
   };
 
   const styles = createStyles(themeColors);
@@ -149,11 +200,75 @@ export default function SettingsScreen() {
                 </View>
                 <ChevronRight size={18} color={themeColors.mutedForeground} />
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.menuItem, { borderTopWidth: 1, borderTopColor: themeColors.border }]}
+                onPress={() => setShowDeleteModal(true)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.menuIconWrap, { backgroundColor: themeColors.muted }]}>
+                  <LogOut size={18} color={themeColors.destructive} strokeWidth={1.75} />
+                </View>
+                <View style={styles.menuText}>
+                  <Text style={[styles.menuTitle, { color: themeColors.destructive }]}>Delete account</Text>
+                  <Text style={[styles.menuSubtitle, { color: themeColors.mutedForeground }]}>Permanently delete your account and data</Text>
+                </View>
+                <ChevronRight size={18} color={themeColors.mutedForeground} />
+              </TouchableOpacity>
             </View>
           </View>
 
           {/* App version */}
           <Text style={[styles.version, { color: themeColors.mutedForeground }]}>VoiceyBill · v1.0.0</Text>
+
+          <Modal visible={showDeleteModal} transparent animationType="slide">
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+              <View style={{ width: '100%', backgroundColor: themeColors.card, padding: 20, borderRadius: 12 }}>
+                <Text style={{ color: themeColors.foreground, fontWeight: '700', fontSize: 18 }}>Delete account</Text>
+                <Text style={{ color: themeColors.mutedForeground, marginTop: 8 }}>
+                  This action is permanent. To confirm, type DELETE below and press Confirm.
+                </Text>
+                <TextInput
+                  value={confirmText}
+                  onChangeText={setConfirmText}
+                  placeholder="Type DELETE to confirm"
+                  placeholderTextColor={themeColors.mutedForeground}
+                  style={{ marginTop: 12, borderWidth: 1, borderColor: themeColors.border, padding: 10, borderRadius: 8, color: themeColors.foreground }}
+                />
+
+                <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+                  <TouchableOpacity
+                    onPress={handleSendOtp}
+                    disabled={isSendingOtp}
+                    style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: themeColors.primary }}
+                  >
+                    <Text style={{ color: themeColors.primaryForeground, textAlign: 'center' }}>
+                      {isSendingOtp ? 'Sending OTP...' : 'Send OTP'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                <TextInput
+                  value={deleteOtp}
+                  onChangeText={setDeleteOtp}
+                  keyboardType="numeric"
+                  maxLength={6}
+                  placeholder="Enter OTP code"
+                  placeholderTextColor={themeColors.mutedForeground}
+                  style={{ marginTop: 12, borderWidth: 1, borderColor: themeColors.border, padding: 10, borderRadius: 8, color: themeColors.foreground }}
+                />
+
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+                  <TouchableOpacity onPress={() => { setShowDeleteModal(false); setConfirmText(''); setDeleteOtp(''); }} style={{ padding: 10 }}>
+                    <Text style={{ color: themeColors.primary }}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleDelete} disabled={isDeleting} style={{ padding: 10, backgroundColor: '#ff3b30', borderRadius: 8 }}>
+                    {isDeleting ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff' }}>Confirm</Text>}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
       </ScrollView>
     </SafeAreaView>
