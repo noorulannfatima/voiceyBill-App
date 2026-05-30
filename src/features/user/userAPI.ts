@@ -72,6 +72,21 @@ export const userApi = apiClient.injectEndpoints({
       }),
       invalidatesTags: ['user'],
     }),
+
+    sendDeleteAccountOtp: builder.mutation<{ message: string }, void>({
+      query: () => ({
+        url: '/user/account/otp',
+        method: 'POST',
+      }),
+    }),
+
+    deleteUser: builder.mutation<{ message: string }, { otp: string }>({
+      query: (payload) => ({
+        url: '/user/account',
+        method: 'DELETE',
+        body: payload,
+      }),
+    }),
   }),
 });
 
@@ -81,4 +96,6 @@ export const {
   useUpdateUserProfileMutation,
   useChangePasswordMutation,
   useUploadAvatarMutation,
+  useSendDeleteAccountOtpMutation,
+  useDeleteUserMutation,
 } = userApi;
