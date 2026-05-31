@@ -404,7 +404,7 @@ export default function TransactionsScreen({ route }: TransactionsScreenProps) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={[]}>
       {/* Dark Header Section - Always dark like dashboard */}
       <View style={styles.darkHeaderSection}>
         <View style={styles.navbar}>
