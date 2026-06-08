@@ -12,12 +12,12 @@
     "userInterfaceStyle": "automatic",
     "runtimeVersion": "1.0.0",
     "updates": {
-      "url": "",
       "fallbackToCacheTimeout": 0,
       "checkAutomatically": "ON_LOAD"
     },
     "icon": "./assets/icon.png",
     "splash": {
+      "image": "./assets/icon.png",
       "backgroundColor": "#ffffff",
       "resizeMode": "contain"
     },
