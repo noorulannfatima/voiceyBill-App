@@ -16,7 +16,6 @@
     }
   },
   "submit": {
-    "production": {}
     "production": {
       "android": {
         "track": "alpha"
