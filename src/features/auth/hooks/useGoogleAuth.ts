@@ -70,7 +70,7 @@ export const useGoogleAuth = () => {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest(googleConfig);
 
   const isConfigured = useMemo(
-    () => Boolean(googleConfig.webClientId && googleConfig.androidClientId && googleConfig.iosClientId),
+    () => Boolean(googleConfig.webClientId && googleConfig.androidClientId),
     []
   );
 
