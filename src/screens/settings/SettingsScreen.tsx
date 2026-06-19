@@ -23,6 +23,7 @@ import {
   Lock,
   ChevronRight,
   LogOut,
+  Tag,
 } from "lucide-react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { useToast } from "../../context/NotificationContext";
@@ -67,6 +68,17 @@ const sections: Section[] = [
         subtitle: "Update profile and avatar",
         screen: "Account",
         icon: User,
+      },
+    ],
+  },
+  {
+    title: "Customization",
+    items: [
+      {
+        title: "Categories",
+        subtitle: "Create and manage custom transaction categories",
+        screen: "CategorySettings",
+        icon: Tag,
       },
     ],
   },
